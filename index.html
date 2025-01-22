@@ -5,22 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Divider</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen flex flex-col justify-center items-center">
     <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl text-center">
         <h1 class="text-3xl font-bold text-gray-800 mb-4">Team Divider</h1>
         <p class="text-gray-600 mb-6">Click the button below to divide 58 members into 12 teams of equal size.</p>
 
-        <button id="divideTeamsButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all">Divide Teams</button>
+        <button id="divideTeamsButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all mb-4">Divide Teams</button>
+
+        <!-- New button to download PDF -->
+        <button id="downloadPDFButton" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all">Download as PDF</button>
 
         <div id="teamsContainer" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
 
     <script>
+        let teams = [];
+
+        // Function to divide teams
         document.getElementById('divideTeamsButton').addEventListener('click', () => {
             const members = Array.from({ length: 58 }, (_, i) => `Member ${i + 1}`);
             const teamCount = 12;
-            const teams = Array.from({ length: teamCount }, () => []);
+            teams = Array.from({ length: teamCount }, () => []);
 
             let index = 0;
             while (members.length) {
@@ -51,6 +59,26 @@
                 teamDiv.appendChild(teamList);
                 teamsContainer.appendChild(teamDiv);
             });
+        });
+
+        // Function to download the teams as a PDF
+        document.getElementById('downloadPDFButton').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(16);
+            doc.text("Team Divider", 20, 20);
+
+            teams.forEach((team, idx) => {
+                doc.setFontSize(12);
+                doc.text(`Team ${idx + 1}:`, 20, 30 + (idx * 20));
+                team.forEach((member, memberIdx) => {
+                    doc.text(`- ${member}`, 20, 40 + (idx * 20) + (memberIdx * 10));
+                });
+            });
+
+            doc.save("teams.pdf");
         });
     </script>
 </body>
